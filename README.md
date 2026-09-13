@@ -25,4 +25,17 @@ AlMosaly etc.
 | [`api-service`](https://github.com/openathar/api-service) | Spring-Boot-Backend, Public REST API (rate-limitiert, gecacht) |
 | [`athar-mobile-app`](https://github.com/openathar/athar-mobile-app) | iOS/Android App (offline-first) |
 
+> **Status: Pre-Alpha.** Die drei Code-Repos (`athan-core-java`,
+> `api-service`, `athar-mobile-app`) sind derzeit noch **privat** und werden
+> zum MVP-Launch mit vollständiger Commit-History geöffnet. Die Links oben
+> sind bis dahin nur für Org-Mitglieder erreichbar. Vision, Architektur und
+> Roadmap sind hier bereits vollständig öffentlich einsehbar.
+
+## Mitmachen
+
+Contributors sind ab MVP-Launch herzlich willkommen — "Leave your Athar".
+Wer sich schon jetzt einbringen will (Architektur-Feedback, religiöse
+Content-Governance, Lizenzfragen, Übersetzungen): gerne ein Issue hier im
+Repo öffnen.
+
 Vollständiges Systemdesign & Roadmap: siehe [`AGENTS.md`](AGENTS.md).
