@@ -1,0 +1,9 @@
+[submodule "core"]
+	path = core
+	url = https://github.com/openathar/athan-core-java.git
+[submodule "api"]
+	path = api
+	url = https://github.com/openathar/api-service.git
+[submodule "mobile"]
+	path = mobile
+	url = https://github.com/openathar/athar-mobile-app.git
