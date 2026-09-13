@@ -1,83 +1,136 @@
-# Athar — Systemdesign & Roadmap
+# Athar — System Design & Roadmap
 
-## Domain-Driven Design & Bounded Contexts
+## Current state (source of truth: code, not plans)
 
-| Context | Typ | Verantwortung |
+| Repo | State | What's actually there |
 |---|---|---|
-| **Calculation Engine** (`athan-core-java`) | Core Domain | Gebetszeiten (MWL/ISNA/Umm Al-Qura...), Qibla, Hijri-Konvertierung — rein, zustandslos, kein DB-Zugriff |
-| **Content Distribution** | Supporting | Quran, Hisn Al-Muslim, Ruqyah, Adhkar — versioniert, CDN-tauglich |
-| **User Engagement / Sync** | Supporting | Khatma-Tracking, Tasbeeh-Counter, Ramadan-Dashboard — einziger Context mit echtem User-State |
-| **Notification/Scheduling** | Supporting | Adhan-Trigger, lokale Alarme, Content-Push |
-| **Public API Gateway** (`api-service`) | Open Host Service | Rate-Limiting, API-Keys, Developer-Portal — Wrapper um Calculation + Content |
-| **Identity** | Generic, bewusst minimal | Kein Pflicht-Account fürs Grundprodukt — Device-ID + optionaler Pairing-Code |
+| **`athar-web`** | **Actively developed** | Next.js frontend, live: Hero, Earth & Moon (real terminator/moon-phase computation, click-to-locate), world map with live prayer times (Aladhan API), "Two Books" section (Quran verse + AI-assisted observation, editorially reviewed), Islamic calendar (upcoming dates), DE/EN/AR with RTL. Also an unfinished, unmerged redesign branch (`design/b-noor`, dark gold/green theme) as a draft. |
+| **`athan-core-java`** | **Scaffold** | README + AGENTS.md only, no code. Prayer-time logic today lives ad-hoc in the web app (Aladhan API call + its own JS Hijri conversion in `lib/hijri.ts`) — not yet extracted into a portable library. |
+| **`api-service`** | **Scaffold** | README + AGENTS.md only, no code, no endpoint. |
+| **`athar-mobile-app`** | **Scaffold** | README + AGENTS.md only, no code, framework decision (Flutter vs. KMP) still open. |
 
-**Kritische Entscheidung:** `athan-core-java` ist die **einzige Quelle der
-Wahrheit** für die Berechnungslogik — client- (offline) und serverseitig
-(Public API) identisch, kein Re-Implementieren. Kotlin-Multiplatform-fähig
-halten (JVM für Backend, nativ für Mobile).
+**Consequence for the roadmap:** calculation logic is currently
+**duplicated and provisional** — the web app calls an external API
+(Aladhan) for prayer times and computes Hijri conversion itself in
+JavaScript. That's not the end state, it's the deliberate interim step of
+"prove it works first, then build the real engine" (see the roadmap section
+on the site itself: *Web tools — Live*, *Calculation core — In progress*).
 
-## Systemarchitektur & API-Design
+## Domain-driven design & bounded contexts
 
-- **Modularer Monolith** zu Beginn (Hexagonal, ein Modul pro Bounded
-  Context), Microservices erst bei nachweisbarem Skalierungsdruck.
-- **Public API**: Ergebnisse sind für (lat, lon, date, method) für immer
-  gleich → aggressives HTTP-Caching (`Cache-Control: immutable`) + CDN-Edge
-  davor. Rate-Limiting via Redis Token-Bucket pro API-Key + IP-Grundlimit
-  für anonyme Nutzung (wie Aladhan-API).
-- **Kein GraphQL für V1** — Datenmodelle sind flach, REST + Cache-Header
-  reichen.
-- **Sync-Strategie**: App rechnet Gebetszeiten immer lokal (embedded
-  `athan-core-java`), Server nur für GPS→Standort-Auflösung. Nur
-  Khatma-Fortschritt/Tasbeeh synchronisieren, ohne Pflicht-Account
-  (Device-ID + optionaler Pairing-Code, Last-Write-Wins + monotoner Zähler).
+| Context | Type | Responsibility |
+|---|---|---|
+| **Calculation Engine** (`athan-core-java`) | Core Domain | Prayer times (MWL/ISNA/Umm Al-Qura...), Qibla, Hijri conversion — pure, stateless, no DB access |
+| **Content Distribution** | Supporting | Quran, Hisn Al-Muslim, Ruqyah, Adhkar — versioned, CDN-friendly |
+| **User Engagement / Sync** | Supporting | Khatma tracking, Tasbeeh counter, Ramadan dashboard — the only context with real user state |
+| **Notification/Scheduling** | Supporting | Adhan triggers, local alarms, content push |
+| **Public API Gateway** (`api-service`) | Open Host Service | Rate limiting, API keys, developer portal — a wrapper around Calculation + Content |
+| **Identity** | Generic, deliberately minimal | No mandatory account for the core product — device ID + optional pairing code |
 
-## Mobile-Herausforderungen
+**Critical decision:** `athan-core-java` is meant to become the **single
+source of truth** for calculation logic — identical client-side (offline)
+and server-side (Public API), never reimplemented twice. As long as this
+repo is a scaffold, the web app is the de-facto reference implementation
+(even though today it partly leans on external APIs instead of its own
+calculation) — when `athan-core-java` gets built, the web's logic
+(`lib/hijri.ts`, prayer-time parameters) counts as the spec, not
+PrayTimes.org alone. Keep it Kotlin-Multiplatform-capable (JVM for backend,
+native for mobile).
 
-- **Nicht auf Push für Adhan-Timing verlassen** (Doze Mode / iOS
-  Background-Throttling unzuverlässig für Sekunden-genaue Trigger).
-- Android: `WorkManager` berechnet N Tage voraus, `AlarmManager
-  .setExactAndAllowWhileIdle` + explizite `SCHEDULE_EXACT_ALARM`-Permission
-  (Android 12+) + Battery-Optimization-Exemption-Dialog.
-- iOS: Lokale `UNUserNotificationCenter`-Notifications ~7 Tage im Voraus,
-  Refresh via `BGAppRefreshTask`/`BGProcessingTask`. Live Activities als
-  Timer-Style (fixes Enddatum) — kein periodischer Push nötig.
-- Smart-Speaker-Integration (Alexa/Google Home) ist entkoppelt, ruft nur die
-  Public API — kein Einfluss auf Mobile-Architektur.
+## System architecture & API design
 
-## DevOps & Hosting (kosteneffizient)
+- **Modular monolith** to start (hexagonal, one module per bounded
+  context), microservices only once scaling pressure is real.
+- **Public API**: results for (lat, lon, date, method) are constant forever
+  → aggressive HTTP caching (`Cache-Control: immutable`) + a CDN edge in
+  front. Rate limiting via Redis token bucket per API key + a base IP limit
+  for anonymous use (same pattern as the Aladhan API the web currently uses
+  as a placeholder).
+- **No GraphQL for V1** — the data models are flat, REST + cache headers
+  are enough.
+- **Sync strategy**: the app always computes prayer times locally (embedded
+  `athan-core-java`), the server is only used for GPS→location resolution.
+  Only Khatma progress/Tasbeeh get synced, with no mandatory account
+  (device ID + optional pairing code, last-write-wins + a monotonic
+  counter).
 
-- k3s/k3d (bestehendes Homelab-Setup) reicht für MVP.
-- PostgreSQL via CNPG-Operator (User-Sync-Daten sind klein).
-- Redis Single-Instance für Cache + Rate-Limiting.
-- Statischer Content (Quran-Texte/Audio/Fonts) über Object Storage + CDN,
-  **nicht** über App-Pods.
-- Public-API-Erreichbarkeit über Cloudflare Tunnel; bei Wachstum kleiner
-  VPS (Hetzner) als Ingress statt Home-Bandbreite.
-- HPA nur auf API-Gateway-Pods, nicht auf Calculation Engine.
+## Mobile constraints
 
-## Sprint 1 — MVP
+- **Never rely on push for Adhan timing** (Doze Mode / iOS background
+  throttling are unreliable for second-accurate triggers).
+- Android: `WorkManager` computes N days ahead, `AlarmManager
+  .setExactAndAllowWhileIdle` + explicit `SCHEDULE_EXACT_ALARM` permission
+  (Android 12+) + battery-optimization exemption dialog.
+- iOS: local `UNUserNotificationCenter` notifications ~7 days ahead,
+  refreshed via `BGAppRefreshTask`/`BGProcessingTask`. Live Activities as a
+  timer style (fixed end date) — no periodic push needed.
+- Smart-speaker integration (Alexa/Google Home) is decoupled, only calls the
+  Public API — no influence on mobile architecture.
+- Not started yet: no code, no framework decision (Flutter vs. Kotlin
+  Multiplatform) made.
 
-**Backend (`api-service` + `athan-core-java`):**
-1. Spring-Boot-Skeleton, nur Calculation-Engine-Modul (Hexagonal).
-2. Algorithmus portieren (Referenz: PrayTimes.org-Spec), Unit-Tests gegen
-   Referenzwerte.
-3. Einziger Endpoint: `GET /v1/prayer-times?lat&lon&date&method`.
-4. Redis-Cache + einfaches Rate-Limiting.
-5. Deploy auf k3d-Stage.
+## DevOps & hosting
 
-**Mobile (`athar-mobile-app`):**
-1. Flutter/KMP-Scaffold, Calculation-Logik direkt eingebettet.
-2. Minimal-UI: heutige Gebetszeiten + Qibla-Kompass.
-3. Lokale Adhan-Notification-Scheduling, Doze/Background-Test auf echtem
-   Gerät.
-4. Interner Alpha-Release.
+- **Homelab reality (as of now):** there is only **one** production k3s
+  cluster (`lenserver` + `lenserver2`, 2 nodes). The former opi/k3d dev
+  cluster has been decommissioned — any mention of "k3d" or a "dev stage"
+  in older notes is stale.
+- **`athar-web` is not deployed to the cluster yet.** A `Dockerfile` exists
+  in the repo, but there's no GitOps manifest or running pod for it — the
+  site currently only runs locally (`npm run dev`) and isn't yet served in
+  production for `openathar.org`. Next concrete step before public launch:
+  build the image, push it to the cluster registry, add a minimal
+  deployment + ingress (same pattern as Wasilah: pin the image tag to the
+  commit SHA, never `:latest`).
+- Once `api-service` has code: PostgreSQL via the CNPG operator (user-sync
+  data is small), a single Redis instance for cache + rate limiting —
+  neither exists yet since there's no backend code that needs them.
+- Static content (Quran text/audio/fonts) via object storage + CDN, **not**
+  through app pods — also only relevant once content distribution actually
+  gets built.
+- Public API reachability later via Cloudflare Tunnel (same pattern as
+  other homelab services); at scale, a small Hetzner VPS as ingress instead
+  of home bandwidth.
+- HPA only on API-gateway pods, not on the calculation engine — a rule for
+  later, not applicable yet (nothing is deployed).
 
-## Offene kritische Fragen (vor Public Launch klären)
+## Next steps (not "Sprint 1" — the web is already ahead of that)
 
-1. **Content-Governance**: Wer verifiziert Quran-Text/Hadith-Authentizität/
-   madhhab-spezifische Methoden (Ijazah-Träger-Review-Prozess)?
-2. **Nachhaltigkeit ohne Ads/Tracking**: Finanzierungsmodell für Infra
-   (Sadaqah/Waqf/Sponsoring), ggf. Verein/Stiftung als Träger für
-   SLA-Fähigkeit der Public API.
-3. **Content-Lizenzierung**: Nutzungsrechte für Mushaf-Fonts, Rezitationen,
-   Übersetzungen vor Integration klären.
+The original "Sprint 1" plan assumed an empty web app — that's outdated.
+Realistic next steps, in order:
+
+1. **Start `athan-core-java`**: a Spring-compatible Java/Kotlin module,
+   prayer-time algorithm (reference: the PrayTimes.org spec, cross-checked
+   against the parameters the web already shows via Aladhan) + rebuild the
+   Hijri conversion from `web/lib/hijri.ts` exactly (don't reinvent it — use
+   the same reference values, so web and engine never drift apart). Unit
+   tests against known reference values are mandatory.
+2. **Switch the web app to the real engine**: once `athan-core-java`
+   exists, move `lib/prayer-times.ts` from an Aladhan fetch to the actual
+   calculation (WASM or a small Kotlin/JS build, still to be decided).
+   That's the moment "Calculation core" flips from *In progress* to *Live*.
+3. **`api-service` after that**: a thin wrapper around `athan-core-java`,
+   `GET /v1/prayer-times?lat&lon&date&method`, Redis cache + rate limiting,
+   deployed to the existing prod cluster (see DevOps above — including the
+   still-missing `athar-web` deployment itself).
+4. **`athar-mobile-app` last**: only once the engine is embeddable as a
+   library does a mobile scaffold make sense (otherwise the same logic gets
+   written a third time).
+
+## Open critical questions (resolve before public launch)
+
+1. **Content governance**: who verifies Quran text/hadith authenticity/
+   madhhab-specific methods (an Ijazah-holder review process)? The current
+   "Two Books" section uses AI-drafted, editorially reviewed observation
+   text (see `data/reflections.json`, field
+   `provenance.arabicApproved: false` — the Arabic version isn't approved
+   yet).
+2. **Sustainability without ads/tracking**: a funding model for
+   infrastructure (Sadaqah/Waqf/sponsorship), possibly a non-profit
+   association as the legal entity behind SLA-capable public API hosting.
+3. **Content licensing**: usage rights for Mushaf fonts, recitations,
+   translations need to be cleared before integration.
+4. **Design decision pending**: the `design/b-noor` branch (dark gold/green
+   theme, different header, world map with city picker) is a parallel
+   design draft to the current `main` design — not yet decided whether or
+   how the two get merged.

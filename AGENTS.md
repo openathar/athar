@@ -1,31 +1,37 @@
 # AGENTS.md — Athar (openathar)
 
-Non-Profit Sadaqah-Jariyah-Projekt: kostenlose, werbefreie, datenschutz-
-freundliche islamische Plattform (Web/Android/iOS) + Public API. Vollständig
-Open Source unter der GitHub-Org **`openathar`**. Kampagne: "Leave your
-Athar" — Code als bleibende gute Tat.
+Non-profit Sadaqah Jariyah project: a free, ad-free, privacy-respecting
+Islamic platform (web/Android/iOS) + public API. Fully open source under the
+GitHub org **`openathar`**. Campaign: "Leave your Athar" — code as a lasting
+good deed.
 
-## Verknuepfungen
+## Links
 
-- Repo-Regeln & Konventionen: `~/Development/harness/agents/business-repo.md`
-- Repo-Landkarte: `~/Development/harness/docs/repo-map.md`
-- AGENTS.md-Konvention ("Karte, nicht Handbuch"): `~/Development/harness/agents/agents-md-convention.md`
+- Repo conventions: `~/Development/harness/agents/business-repo.md`
+- Repo map: `~/Development/harness/docs/repo-map.md`
+- AGENTS.md convention ("map, not manual"): `~/Development/harness/agents/agents-md-convention.md`
 - Skills (global): `~/.agents/skills/`
 
-Dieser Ordner ist der **Superproject-Ordner** (analog `business/wasilah`),
-die eigentlichen Repos liegen unter der Org `openathar` und werden hier als
-Git-Submodule eingebunden: `core/` → `athan-core-java`, `api/` →
-`api-service`, `mobile/` → `athar-mobile-app`.
+This folder is the **superproject** (same pattern as `business/wasilah`) —
+the actual repos live under the `openathar` org and are wired in here as git
+submodules: `core/` → `athan-core-java`, `api/` → `api-service`, `mobile/` →
+`athar-mobile-app`, `web/` → `athar-web`.
 
-## Architektur & Roadmap
+## Architecture & roadmap
 
-Vollstaendiges Systemdesign (Bounded Contexts, API-Design,
-Mobile-Constraints, DevOps, Sprint-1-Plan, offene kritische Fragen):
+Full system design (bounded contexts, API design, mobile constraints,
+DevOps, current status per repo, open critical questions):
 [`docs/architecture.md`](docs/architecture.md).
 
-## Besonderheiten
+## Things to know
 
-- `core/` (`athan-core-java`) ist die einzige Quelle der Berechnungslogik —
-  wird server- UND clientseitig genutzt, niemals zweitimplementieren.
-- Submodule-Disziplin: im Submodule-Ordner arbeiten, danach Pointer hier
-  bumpen. Kein zusaetzlicher Top-Level-Clone.
+- `core/` (`athan-core-java`) is meant to become the **single source of
+  truth** for calculation logic — used server- **and** client-side, never
+  reimplemented a second time. It doesn't exist yet (scaffold only); until
+  it does, `web/` is the de-facto reference implementation, even though it
+  currently leans on an external API (Aladhan) as a placeholder.
+- `web/` is the only repo with real, running code today — see
+  [`docs/architecture.md`](docs/architecture.md) for the honest state of
+  the other three.
+- Submodule discipline: work inside the submodule folder, then bump the
+  pointer here. No extra top-level clone.
