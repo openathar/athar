@@ -27,10 +27,11 @@ DevOps, current status per repo, open critical questions):
 
 - `core/` (`athan-core-java`) is meant to become the **single source of
   truth** for calculation logic — used server- **and** client-side, never
-  reimplemented a second time. It doesn't exist yet (scaffold only); until
-  it does, `web/` is the de-facto reference implementation, even though it
+  reimplemented a second time. First code landed (Java 25 / Maven: prayer
+  times + Hijri with reference tests); until the web is switched over,
+  `web/` remains the de-facto reference implementation, even though it
   currently leans on an external API (Aladhan) as a placeholder.
-- `web/` is the only repo with real, running code today — see
+- `web/` is the only repo deployed to production today — see
   [`docs/architecture.md`](docs/architecture.md) for the honest state of
   the other three.
 - Submodule discipline: work inside the submodule folder, then bump the

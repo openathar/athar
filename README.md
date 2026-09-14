@@ -93,7 +93,7 @@ just marketing language.
 | Repo | Purpose | Status |
 |---|---|---|
 | [`athar-web`](https://github.com/openathar/athar-web) | Next.js frontend — everything shown above | **Live, actively developed** |
-| [`athan-core-java`](https://github.com/openathar/athan-core-java) | Core SDK (Java/Kotlin) — prayer times, Qibla, Hijri calculation, portable | Scaffold — README only, no code yet |
+| [`athan-core-java`](https://github.com/openathar/athan-core-java) | Core SDK (Java 25 / Maven) — prayer times, Qibla, Hijri calculation, portable | **First code landed** — prayer times + Hijri with reference tests |
 | [`api-service`](https://github.com/openathar/api-service) | Spring Boot backend, public REST API (rate-limited, cached) | Scaffold — README only, no code yet |
 | [`athar-mobile-app`](https://github.com/openathar/athar-mobile-app) | iOS/Android app (offline-first) | Scaffold — README only, no code yet |
 
