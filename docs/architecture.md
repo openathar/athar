@@ -34,9 +34,8 @@ repo is a scaffold, the web app is the de-facto reference implementation
 (even though today it partly leans on external APIs instead of its own
 calculation) — when `athan-core-java` gets built, the web's logic
 (`lib/hijri.ts`, prayer-time parameters) counts as the spec, not
-PrayTimes.org alone. Pure Java 25 / Maven, no Spring, no state — the mobile
-target embeds it as a library (the only migration point is replacing
-`HijrahChronology` with an embedded Umm al-Qura table).
+PrayTimes.org alone. Keep it Kotlin-Multiplatform-capable (JVM for backend,
+native for mobile).
 
 ## System architecture & API design
 
@@ -101,7 +100,7 @@ target embeds it as a library (the only migration point is replacing
 The original "Sprint 1" plan assumed an empty web app — that's outdated.
 Realistic next steps, in order:
 
-1. **Start `athan-core-java`**: a pure Java 25 / Maven module (no Spring),
+1. **Start `athan-core-java`**: a Spring-compatible Java/Kotlin module,
    prayer-time algorithm (reference: the PrayTimes.org spec, cross-checked
    against the parameters the web already shows via Aladhan) + rebuild the
    Hijri conversion from `web/lib/hijri.ts` exactly (don't reinvent it — use
@@ -109,7 +108,7 @@ Realistic next steps, in order:
    tests against known reference values are mandatory.
 2. **Switch the web app to the real engine**: once `athan-core-java`
    exists, move `lib/prayer-times.ts` from an Aladhan fetch to the actual
-   calculation (WASM or a small JS port, still to be decided).
+   calculation (WASM or a small Kotlin/JS build, still to be decided).
    That's the moment "Calculation core" flips from *In progress* to *Live*.
 3. **`api-service` after that**: a thin wrapper around `athan-core-java`,
    `GET /v1/prayer-times?lat&lon&date&method`, Redis cache + rate limiting,
