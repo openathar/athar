@@ -35,3 +35,10 @@ DevOps, current status per repo, open critical questions):
   the other three.
 - Submodule discipline: work inside the submodule folder, then bump the
   pointer here. No extra top-level clone.
+
+## APM (Agent Package Manager)
+
+Projekt-lokale Skills/Agents/Commands werden über `apm.yaml` verwaltet
+(Registry-Quelle: `~/Development/harness/registry/`).
+- `apm install --local` — installiert die in `apm.yaml` gelisteten Packages
+- `apm status --local` — prüft Installations-Stand gegen die Registry
