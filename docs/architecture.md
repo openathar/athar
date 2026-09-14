@@ -4,7 +4,7 @@
 
 | Repo | State | What's actually there |
 |---|---|---|
-| **`athar-web`** | **Actively developed** | Next.js frontend, live: Hero, Earth & Moon (real terminator/moon-phase computation, click-to-locate), world map with live prayer times (Aladhan API), "Two Books" section (Quran verse + AI-assisted observation, editorially reviewed), Islamic calendar (upcoming dates), DE/EN/AR with RTL. Also an unfinished, unmerged redesign branch (`design/b-noor`, dark gold/green theme) as a draft. |
+| **`athar-web`** | **Actively developed, deployed** | Next.js frontend, live at `openathar.org` (GitOps via `athar-ops`): Hero, Earth & Moon (real terminator/moon-phase computation, click-to-locate), world map with live prayer times (Aladhan API), "Two Books" section (Quran verse + AI-assisted observation, editorially reviewed), Islamic calendar (upcoming dates), DE/EN/AR with RTL. Also an unfinished, unmerged redesign branch (`design/b-noor`, dark gold/green theme) as a draft. |
 | **`athan-core-java`** | **Scaffold** | README + AGENTS.md only, no code. Prayer-time logic today lives ad-hoc in the web app (Aladhan API call + its own JS Hijri conversion in `lib/hijri.ts`) — not yet extracted into a portable library. |
 | **`api-service`** | **Scaffold** | README + AGENTS.md only, no code, no endpoint. |
 | **`athar-mobile-app`** | **Scaffold** | README + AGENTS.md only, no code, framework decision (Flutter vs. KMP) still open. |
@@ -75,13 +75,13 @@ native for mobile).
   cluster (`lenserver` + `lenserver2`, 2 nodes). The former opi/k3d dev
   cluster has been decommissioned — any mention of "k3d" or a "dev stage"
   in older notes is stale.
-- **`athar-web` is not deployed to the cluster yet.** A `Dockerfile` exists
-  in the repo, but there's no GitOps manifest or running pod for it — the
-  site currently only runs locally (`npm run dev`) and isn't yet served in
-  production for `openathar.org`. Next concrete step before public launch:
-  build the image, push it to the cluster registry, add a minimal
-  deployment + ingress (same pattern as Wasilah: pin the image tag to the
-  commit SHA, never `:latest`).
+- **`athar-web` is deployed to production.** GitOps via ArgoCD from the
+  `athar-ops` repo (AppProject `athar-prod`, Application `athar-web`,
+  namespace `athar` on the prod cluster): Deployment pinned to the commit
+  SHA (`ghcr.io/openathar/athar-web:main-<sha>`, never `:latest`), Traefik
+  IngressRoute for `openathar.org` + `www.openathar.org`, TLS via
+  cert-manager, Cloudflare in front. Image updates happen only in
+  `athar-ops`, never via `kubectl set image`.
 - Once `api-service` has code: PostgreSQL via the CNPG operator (user-sync
   data is small), a single Redis instance for cache + rate limiting —
   neither exists yet since there's no backend code that needs them.
@@ -92,7 +92,8 @@ native for mobile).
   other homelab services); at scale, a small Hetzner VPS as ingress instead
   of home bandwidth.
 - HPA only on API-gateway pods, not on the calculation engine — a rule for
-  later, not applicable yet (nothing is deployed).
+  later, not applicable yet (only `athar-web` is deployed today, and it
+  doesn't need HPA).
 
 ## Next steps (not "Sprint 1" — the web is already ahead of that)
 
@@ -111,8 +112,8 @@ Realistic next steps, in order:
    That's the moment "Calculation core" flips from *In progress* to *Live*.
 3. **`api-service` after that**: a thin wrapper around `athan-core-java`,
    `GET /v1/prayer-times?lat&lon&date&method`, Redis cache + rate limiting,
-   deployed to the existing prod cluster (see DevOps above — including the
-   still-missing `athar-web` deployment itself).
+   deployed to the existing prod cluster (same GitOps pattern as
+   `athar-web`).
 4. **`athar-mobile-app` last**: only once the engine is embeddable as a
    library does a mobile scaffold make sense (otherwise the same logic gets
    written a third time).
