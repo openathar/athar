@@ -4,17 +4,18 @@
 
 | Repo | State | What's actually there |
 |---|---|---|
-| **`athar-web`** | **Actively developed, deployed** | Next.js frontend, live at `openathar.org` (GitOps via `athar-ops`): Hero, Earth & Moon (real terminator/moon-phase computation, click-to-locate), world map with live prayer times (Aladhan API), "Two Books" section (Quran verse + AI-assisted observation, editorially reviewed), Islamic calendar (upcoming dates), DE/EN/AR with RTL. Also an unfinished, unmerged redesign branch (`design/b-noor`, dark gold/green theme) as a draft. |
-| **`athan-core-java`** | **Scaffold** | README + AGENTS.md only, no code. Prayer-time logic today lives ad-hoc in the web app (Aladhan API call + its own JS Hijri conversion in `lib/hijri.ts`) — not yet extracted into a portable library. |
-| **`api-service`** | **Scaffold** | README + AGENTS.md only, no code, no endpoint. |
-| **`athar-mobile-app`** | **Scaffold** | README + AGENTS.md only, no code, framework decision (Flutter vs. KMP) still open. |
+| **`athar-web`** | **Actively developed, deployed** | Next.js frontend, live at `openathar.org` (GitOps via `athar-ops`): Hero, Earth & Moon (real terminator/moon-phase computation, click-to-locate), world map with live prayer times (computed locally via a TypeScript port of `athan-core-java` — no external prayer-time API), "Two Books" section (Quran verse + AI-assisted observation, editorially reviewed), Islamic calendar (upcoming dates), DE/EN/AR with RTL. Also an unfinished, unmerged redesign branch (`design/b-noor`, dark gold/green theme) as a draft. |
+| **`athan-core-java`** | **Published** | Java 25 / Maven library on Maven Central (`org.openathar:athan-core:0.1.0`): prayer times (PrayTimes.org v3.2 port), Qibla bearing, Hijri conversion (Umm al-Qura) — 38 reference tests. The single source of truth for calculation logic. |
+| **`api-service`** | **V1 live** | Spring Boot 4.1.1 / Java 25, hexagonal, wraps `athan-core-java` (from Maven Central): `/v1/prayer-times`, `/v1/qibla`, `/v1/hijri`. Redis rate limiting (fixed window per client IP, fail-open), `Cache-Control: public, max-age=31536000, immutable`. 18 tests incl. ArchUnit. |
+| **`athar-mobile-app`** | **Scaffold** | README + AGENTS.md only, no code, framework decision (Flutter vs. KMP) still open. Deliberately last in the build order. |
 
-**Consequence for the roadmap:** calculation logic is currently
-**duplicated and provisional** — the web app calls an external API
-(Aladhan) for prayer times and computes Hijri conversion itself in
-JavaScript. That's not the end state, it's the deliberate interim step of
-"prove it works first, then build the real engine" (see the roadmap section
-on the site itself: *Web tools — Live*, *Calculation core — In progress*).
+**Consequence for the roadmap:** the calculation logic is no longer
+duplicated or provisional — `athan-core-java` exists, is published, and is
+mirrored in the web frontend by a TypeScript port kept in sync with
+reference tests. The remaining work is wiring: the API already consumes the
+library, the mobile app will embed it once the framework decision is made
+(see the roadmap section on the site: *Web tools — Live*, *Calculation core
+— Live*, *Public API — V1*, *Mobile app — next*).
 
 ## Domain-driven design & bounded contexts
 
@@ -27,15 +28,13 @@ on the site itself: *Web tools — Live*, *Calculation core — In progress*).
 | **Public API Gateway** (`api-service`) | Open Host Service | Rate limiting, API keys, developer portal — a wrapper around Calculation + Content |
 | **Identity** | Generic, deliberately minimal | No mandatory account for the core product — device ID + optional pairing code |
 
-**Critical decision:** `athan-core-java` is meant to become the **single
-source of truth** for calculation logic — identical client-side (offline)
-and server-side (Public API), never reimplemented twice. As long as this
-repo is a scaffold, the web app is the de-facto reference implementation
-(even though today it partly leans on external APIs instead of its own
-calculation) — when `athan-core-java` gets built, the web's logic
-(`lib/hijri.ts`, prayer-time parameters) counts as the spec, not
-PrayTimes.org alone. Keep it Kotlin-Multiplatform-capable (JVM for backend,
-native for mobile).
+**Critical decision:** `athan-core-java` is the **single source of truth**
+for calculation logic — identical client-side (offline) and server-side
+(Public API), never reimplemented twice. The web frontend mirrors it via a
+TypeScript port (`lib/athan-core.ts`) kept in sync by reference tests
+against the Java values; the API consumes it directly from Maven Central.
+Keep it Kotlin-Multiplatform-capable (JVM for backend, native for mobile)
+so the mobile app can embed it without a rewrite.
 
 ## System architecture & API design
 
@@ -43,9 +42,8 @@ native for mobile).
   context), microservices only once scaling pressure is real.
 - **Public API**: results for (lat, lon, date, method) are constant forever
   → aggressive HTTP caching (`Cache-Control: immutable`) + a CDN edge in
-  front. Rate limiting via Redis token bucket per API key + a base IP limit
-  for anonymous use (same pattern as the Aladhan API the web currently uses
-  as a placeholder).
+  front. Rate limiting via Redis fixed window per client IP (fail-open),
+  API keys later.
 - **No GraphQL for V1** — the data models are flat, REST + cache headers
   are enough.
 - **Sync strategy**: the app always computes prayer times locally (embedded
@@ -82,9 +80,11 @@ native for mobile).
   IngressRoute for `openathar.org` + `www.openathar.org`, TLS via
   cert-manager, Cloudflare in front. Image updates happen only in
   `athar-ops`, never via `kubectl set image`.
-- Once `api-service` has code: PostgreSQL via the CNPG operator (user-sync
-  data is small), a single Redis instance for cache + rate limiting —
-  neither exists yet since there's no backend code that needs them.
+- **`api-service` runs locally with code** (V1 endpoints). Redis is used
+  for rate limiting (fail-open when unreachable); PostgreSQL via the CNPG
+  operator will come with user-sync data (Khatma/Tasbeeh) — not needed by
+  the current stateless endpoints. Deployment to the prod cluster is a
+  roadmap item.
 - Static content (Quran text/audio/fonts) via object storage + CDN, **not**
   through app pods — also only relevant once content distribution actually
   gets built.
@@ -95,28 +95,24 @@ native for mobile).
   later, not applicable yet (only `athar-web` is deployed today, and it
   doesn't need HPA).
 
-## Next steps (not "Sprint 1" — the web is already ahead of that)
+## Next steps
 
-The original "Sprint 1" plan assumed an empty web app — that's outdated.
-Realistic next steps, in order:
+The original "Sprint 1" plan (build the engine, switch the web to it, then
+wrap it in an API) is **done** — the calculation engine is published, the
+web computes locally, and the API serves V1. What remains, in order:
 
-1. **Start `athan-core-java`**: a Spring-compatible Java/Kotlin module,
-   prayer-time algorithm (reference: the PrayTimes.org spec, cross-checked
-   against the parameters the web already shows via Aladhan) + rebuild the
-   Hijri conversion from `web/lib/hijri.ts` exactly (don't reinvent it — use
-   the same reference values, so web and engine never drift apart). Unit
-   tests against known reference values are mandatory.
-2. **Switch the web app to the real engine**: once `athan-core-java`
-   exists, move `lib/prayer-times.ts` from an Aladhan fetch to the actual
-   calculation (WASM or a small Kotlin/JS build, still to be decided).
-   That's the moment "Calculation core" flips from *In progress* to *Live*.
-3. **`api-service` after that**: a thin wrapper around `athan-core-java`,
-   `GET /v1/prayer-times?lat&lon&date&method`, Redis cache + rate limiting,
-   deployed to the existing prod cluster (same GitOps pattern as
-   `athar-web`).
-4. **`athar-mobile-app` last**: only once the engine is embeddable as a
-   library does a mobile scaffold make sense (otherwise the same logic gets
-   written a third time).
+1. **Deploy `api-service` to production** — same GitOps pattern as
+   `athar-web` (ArgoCD from `athar-ops`, pinned image SHA, Traefik +
+   cert-manager, Cloudflare in front). Needs a Redis instance in the
+   cluster for rate limiting.
+2. **`athar-mobile-app`**: decide Flutter vs. Kotlin Multiplatform, then
+   scaffold — only now that the engine is embeddable as a library does a
+   mobile app make sense (otherwise the same logic gets written a third
+   time).
+3. **API keys + developer portal** for the public API (rate-limit tiers,
+   usage insights).
+4. **Content distribution** (Quran text/audio/fonts, Adhkar) via object
+   storage + CDN, once content governance (see below) is settled.
 
 ## Open critical questions (resolve before public launch)
 

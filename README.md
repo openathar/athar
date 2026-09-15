@@ -53,8 +53,9 @@ on earth to get prayer times for that spot.
 **A city, a map, the times**
 
 Pick a city — or use your own location — and see live prayer times,
-sourced from the Aladhan API, with the next prayer highlighted. The dotted
-world map itself shows day and night in real time.
+computed locally in your browser by a TypeScript port of the shared
+calculation engine (no external prayer-time API), with the next prayer
+highlighted. The dotted world map itself shows day and night in real time.
 
 </td>
 <td width="50%">
@@ -92,17 +93,20 @@ just marketing language.
 
 | Repo | Purpose | Status |
 |---|---|---|
-| [`athar-web`](https://github.com/openathar/athar-web) | Next.js frontend — everything shown above | **Live, actively developed** |
-| [`athan-core-java`](https://github.com/openathar/athan-core-java) | Core SDK (Java 25 / Maven) — prayer times, Qibla, Hijri calculation, portable | **First code landed** — prayer times + Hijri with reference tests |
-| [`api-service`](https://github.com/openathar/api-service) | Spring Boot backend, public REST API (rate-limited, cached) | Scaffold — README only, no code yet |
-| [`athar-mobile-app`](https://github.com/openathar/athar-mobile-app) | iOS/Android app (offline-first) | Scaffold — README only, no code yet |
+| [`athar-web`](https://github.com/openathar/athar-web) | Next.js frontend — everything shown above | **Live, deployed** |
+| [`athan-core-java`](https://github.com/openathar/athan-core-java) | Core SDK (Java 25 / Maven) — prayer times, Qibla, Hijri calculation | **Published to Maven Central** (`org.openathar:athan-core:0.1.0`) |
+| [`api-service`](https://github.com/openathar/api-service) | Spring Boot backend, public REST API (rate-limited, cached) | **V1 endpoints live** — prayer times, Qibla, Hijri |
+| [`athar-mobile-app`](https://github.com/openathar/athar-mobile-app) | iOS/Android app (offline-first) | Scaffold — next in build order |
 
-> **Status: Pre-Alpha.** The web frontend is real and running. The three
-> backend/mobile repos are honest placeholders — scaffolded with intent, not
-> yet written. See [`docs/architecture.md`](docs/architecture.md) for
-> exactly what's built versus what's planned, and why the order matters
-> (the calculation engine has to exist before the API and the app can lean
-> on it, instead of each reinventing it separately).
+> **Status: Pre-Alpha.** The web frontend is real and running, the
+> calculation engine is published as a library on Maven Central, and the
+> public API serves its first endpoints. The mobile app is the remaining
+> scaffold — deliberately last, because it only makes sense once the
+> calculation engine is embeddable as a library. See
+> [`docs/architecture.md`](docs/architecture.md) for exactly what's built
+> versus what's planned, and why the order matters (the calculation engine
+> has to exist before the API and the app can lean on it, instead of each
+> reinventing it separately).
 
 ## Contributing
 
