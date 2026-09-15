@@ -10,3 +10,6 @@
 [submodule "web"]
 	path = web
 	url = https://github.com/openathar/athar-web.git
+[submodule "core-ts"]
+	path = core-ts
+	url = https://github.com/openathar/athan-core-ts.git
