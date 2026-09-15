@@ -95,7 +95,7 @@ just marketing language.
 |---|---|---|
 | [`athar-web`](https://github.com/openathar/athar-web) | Next.js frontend — everything shown above | **Live, deployed** |
 | [`athan-core-java`](https://github.com/openathar/athan-core-java) | Core SDK (Java 25 / Maven) — prayer times, Qibla, Hijri calculation | **Published to Maven Central** (`org.openathar:athan-core:0.1.0`) |
-| [`api-service`](https://github.com/openathar/api-service) | Spring Boot backend, public REST API (rate-limited, cached) | **V1 endpoints live** — prayer times, Qibla, Hijri |
+| [`api-service`](https://github.com/openathar/api-service) | Spring Boot backend, public REST API (rate-limited, cached) | **V1 live at `api.openathar.org`** — prayer times, Qibla, Hijri |
 | [`athar-mobile-app`](https://github.com/openathar/athar-mobile-app) | iOS/Android app (offline-first) | Scaffold — next in build order |
 
 > **Status: Pre-Alpha.** The web frontend is real and running, the

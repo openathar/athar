@@ -6,7 +6,7 @@
 |---|---|---|
 | **`athar-web`** | **Actively developed, deployed** | Next.js frontend, live at `openathar.org` (GitOps via `athar-ops`): Hero, Earth & Moon (real terminator/moon-phase computation, click-to-locate), world map with live prayer times (computed locally via a TypeScript port of `athan-core-java` — no external prayer-time API), "Two Books" section (Quran verse + AI-assisted observation, editorially reviewed), Islamic calendar (upcoming dates), DE/EN/AR with RTL. Also an unfinished, unmerged redesign branch (`design/b-noor`, dark gold/green theme) as a draft. |
 | **`athan-core-java`** | **Published** | Java 25 / Maven library on Maven Central (`org.openathar:athan-core:0.1.0`): prayer times (PrayTimes.org v3.2 port), Qibla bearing, Hijri conversion (Umm al-Qura) — 38 reference tests. The single source of truth for calculation logic. |
-| **`api-service`** | **V1 live** | Spring Boot 4.1.1 / Java 25, hexagonal, wraps `athan-core-java` (from Maven Central): `/v1/prayer-times`, `/v1/qibla`, `/v1/hijri`. Redis rate limiting (fixed window per client IP, fail-open), `Cache-Control: public, max-age=31536000, immutable`. 18 tests incl. ArchUnit. |
+| **`api-service`** | **V1 live in production** | Spring Boot 4.1.1 / Java 25, hexagonal, wraps `athan-core-java` (from Maven Central): `/v1/prayer-times`, `/v1/qibla`, `/v1/hijri` at `api.openathar.org`. Redis rate limiting (fixed window per client IP, fail-open), `Cache-Control: public, max-age=31536000, immutable`. 18 tests incl. ArchUnit. |
 | **`athar-mobile-app`** | **Scaffold** | README + AGENTS.md only, no code, framework decision (Flutter vs. KMP) still open. Deliberately last in the build order. |
 
 **Consequence for the roadmap:** the calculation logic is no longer
@@ -80,11 +80,12 @@ so the mobile app can embed it without a rewrite.
   IngressRoute for `openathar.org` + `www.openathar.org`, TLS via
   cert-manager, Cloudflare in front. Image updates happen only in
   `athar-ops`, never via `kubectl set image`.
-- **`api-service` runs locally with code** (V1 endpoints). Redis is used
-  for rate limiting (fail-open when unreachable); PostgreSQL via the CNPG
-  operator will come with user-sync data (Khatma/Tasbeeh) — not needed by
-  the current stateless endpoints. Deployment to the prod cluster is a
-  roadmap item.
+- **`api-service` is deployed to production** at `api.openathar.org`
+  (ArgoCD app `athar` in `athar-ops`, pinned image SHA, Traefik +
+  Cloudflare tunnel). Redis runs in the `athar` namespace for rate
+  limiting (fail-open when unreachable). PostgreSQL via the CNPG operator
+  will come with user-sync data (Khatma/Tasbeeh) — not needed by the
+  current stateless endpoints.
 - Static content (Quran text/audio/fonts) via object storage + CDN, **not**
   through app pods — also only relevant once content distribution actually
   gets built.
@@ -99,19 +100,16 @@ so the mobile app can embed it without a rewrite.
 
 The original "Sprint 1" plan (build the engine, switch the web to it, then
 wrap it in an API) is **done** — the calculation engine is published, the
-web computes locally, and the API serves V1. What remains, in order:
+web computes locally, and the API serves V1 in production. What remains, in
+order:
 
-1. **Deploy `api-service` to production** — same GitOps pattern as
-   `athar-web` (ArgoCD from `athar-ops`, pinned image SHA, Traefik +
-   cert-manager, Cloudflare in front). Needs a Redis instance in the
-   cluster for rate limiting.
-2. **`athar-mobile-app`**: decide Flutter vs. Kotlin Multiplatform, then
+1. **`athar-mobile-app`**: decide Flutter vs. Kotlin Multiplatform, then
    scaffold — only now that the engine is embeddable as a library does a
    mobile app make sense (otherwise the same logic gets written a third
    time).
-3. **API keys + developer portal** for the public API (rate-limit tiers,
+2. **API keys + developer portal** for the public API (rate-limit tiers,
    usage insights).
-4. **Content distribution** (Quran text/audio/fonts, Adhkar) via object
+3. **Content distribution** (Quran text/audio/fonts, Adhkar) via object
    storage + CDN, once content governance (see below) is settled.
 
 ## Open critical questions (resolve before public launch)
