@@ -96,17 +96,15 @@ just marketing language.
 | [`athar-web`](https://github.com/openathar/athar-web) | Next.js frontend — everything shown above | **Live, deployed** |
 | [`athan-core-java`](https://github.com/openathar/athan-core-java) | Core SDK (Java 25 / Maven) — prayer times, Qibla, Hijri calculation | **Published to Maven Central** (`org.openathar:athan-core:0.1.0`) |
 | [`api-service`](https://github.com/openathar/api-service) | Spring Boot backend, public REST API (rate-limited, cached) | **V1 live at `api.openathar.org`** — prayer times, Qibla, Hijri |
-| [`athar-mobile-app`](https://github.com/openathar/athar-mobile-app) | iOS/Android app (offline-first) | Scaffold — next in build order |
+| [`athar-mobile-app`](https://github.com/openathar/athar-mobile-app) | iOS/Android app (offline-first) | **MVP in progress** — Expo, prayer/Qibla/alarms/location + moon & stars from the web design |
 
 > **Status: Pre-Alpha.** The web frontend is real and running, the
-> calculation engine is published as a library on Maven Central, and the
-> public API serves its first endpoints. The mobile app is the remaining
-> scaffold — deliberately last, because it only makes sense once the
-> calculation engine is embeddable as a library. See
+> calculation engine is published as a library on Maven Central, the
+> public API serves its first endpoints, and the mobile app is an MVP
+> in progress (built on the same calculation core via
+> `@openathar/athan-core-ts`). See
 > [`docs/architecture.md`](docs/architecture.md) for exactly what's built
-> versus what's planned, and why the order matters (the calculation engine
-> has to exist before the API and the app can lean on it, instead of each
-> reinventing it separately).
+> versus what's planned.
 
 ## Contributing
 
