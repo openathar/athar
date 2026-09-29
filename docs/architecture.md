@@ -85,9 +85,11 @@ shared package.
 - **`api-service` is deployed to production** at `api.openathar.org`
   (ArgoCD app `athar` in `athar-ops`, pinned image SHA, Traefik +
   Cloudflare tunnel). Redis runs in the `athar` namespace for rate
-  limiting (fail-open when unreachable). PostgreSQL via the CNPG operator
-  will come with user-sync data (Khatma/Tasbeeh) — not needed by the
-  current stateless endpoints.
+  limiting (fail-open when unreachable) **and** for self-serve API keys
+  (`POST /v1/api-keys`, no TTL — see `api-service/README.md` for the
+  known Redis-vs-Postgres trade-off). PostgreSQL via the CNPG operator
+  will come with user-sync data (Khatma/Tasbeeh) — API keys are the first
+  candidate to migrate once it lands.
 - Static content (Quran text/audio/fonts) via object storage + CDN, **not**
   through app pods — also only relevant once content distribution actually
   gets built.
@@ -107,8 +109,9 @@ order:
 
 1. **`athar-mobile-app`**: MVP in progress (Expo SDK 57) — on-device
    verification, adhan audio, store submission.
-2. **API keys + developer portal** for the public API (rate-limit tiers,
-   usage insights).
+2. **Developer portal UI** on `openathar.org` (currently the OpenAPI docs
+   live at `/swagger-ui.html` only — self-serve keys and rate-limit tiers
+   already ship in the API itself, see below).
 3. **Content distribution** (Quran text/audio/fonts, Adhkar) via object
    storage + CDN, once content governance (see below) is settled.
 
