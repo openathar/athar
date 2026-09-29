@@ -109,11 +109,13 @@ order:
 
 1. **`athar-mobile-app`**: MVP in progress (Expo SDK 57) — on-device
    verification, adhan audio, store submission.
-2. **Developer portal UI** on `openathar.org` (currently the OpenAPI docs
-   live at `/swagger-ui.html` only — self-serve keys and rate-limit tiers
-   already ship in the API itself, see below).
-3. **Content distribution** (Quran text/audio/fonts, Adhkar) via object
+2. **Content distribution** (Quran text/audio/fonts, Adhkar) via object
    storage + CDN, once content governance (see below) is settled.
+
+Shipped since the last pass: a custom developer portal at
+`openathar.org/[locale]/developers` (en/de/ar, RTL-aware, explicitly not
+Swagger UI) with a live in-browser API playground and self-serve API-key
+issuance/usage lookup — calling `api.openathar.org` directly via CORS.
 
 ## Open critical questions (resolve before public launch)
 
