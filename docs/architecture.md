@@ -42,9 +42,12 @@ shared package.
 - **Modular monolith** to start (hexagonal, one module per bounded
   context), microservices only once scaling pressure is real.
 - **Public API**: results for (lat, lon, date, method) are constant forever
-  → aggressive HTTP caching (`Cache-Control: immutable`) + a CDN edge in
-  front. Rate limiting via Redis fixed window per client IP (fail-open),
-  API keys later.
+  → aggressive HTTP caching (`Cache-Control: immutable`; the one exception
+  is Hijri without a date = "today", cached for 5 minutes) + a CDN edge in
+  front. Cloudflare proxies `api.openathar.org` today but does not cache the
+  JSON (`cf-cache-status: DYNAMIC`) — a cache rule would make the immutable
+  headers pay off at the edge. Rate limiting via Redis fixed window per
+  client IP or API key (fail-open); self-serve API keys are live.
 - **No GraphQL for V1** — the data models are flat, REST + cache headers
   are enough.
 - **Sync strategy**: the app always computes prayer times locally (embedded
@@ -113,9 +116,19 @@ order:
    storage + CDN, once content governance (see below) is settled.
 
 Shipped since the last pass: a custom developer portal at
-`openathar.org/[locale]/developers` (en/de/ar, RTL-aware, explicitly not
-Swagger UI) with a live in-browser API playground and self-serve API-key
-issuance/usage lookup — calling `api.openathar.org` directly via CORS.
+`openathar.org/[locale]/developers` (explicitly not Swagger UI). The
+reference itself is English-only; only header/footer/title follow en/de/ar
+and RTL, and all three URLs canonicalize to `/en/developers`. It is
+spec-driven (`web/lib/api-reference.ts` → index, panels, cURL/JS/Python/
+Swift/Kotlin samples), with a live in-browser API playground and self-serve
+API-key issuance/usage lookup — calling `api.openathar.org` directly via
+CORS (allowed origins: openathar.org and http://localhost:3000).
+
+API hardening shipped with it: every failure answers `{"error": "..."}` (no
+Spring default bodies, no 500 for Hijri dates outside the Umm al-Qura table),
+prayer-time fields are `null` where an event does not occur (polar day/night)
+instead of made-up clock values — a v1 contract change for clients that
+assumed non-null strings — and key labels are capped at 64 characters.
 
 ## Open critical questions (resolve before public launch)
 
