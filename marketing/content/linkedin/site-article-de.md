@@ -42,7 +42,7 @@ Und weil ich weiß, wie das klingt: Diesmal ist der Beweis die Architektur selbs
 
 ## Fazit
 
-Heute Abend, wenn der Himmel frei ist: Öffne die Mondansicht, lies Alter und Beleuchtung — und vergleich danach mit dem echten Mond über dir.
+Heute Abend, wenn der Himmel frei ist: Öffne die Seite — der Mond ganz oben ist der von heute — und lies seine Phase. Die Zahlen sind eine Anfrage entfernt (`api.openathar.org/v1/moon`: Alter, Beleuchtung, nächster Neu- und Vollmond). Vergleich danach mit dem echten Mond über dir.
 
 Wenn die Zahlen übereinstimmen, weißt du, warum ich das gebaut habe.
 

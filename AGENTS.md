@@ -25,15 +25,17 @@ DevOps, current status per repo, open critical questions):
 
 ## Things to know
 
-- `core/` (`athan-core-java`) is meant to become the **single source of
-  truth** for calculation logic — used server- **and** client-side, never
-  reimplemented a second time. First code landed (Java 25 / Maven: prayer
-  times + Hijri with reference tests); until the web is switched over,
-  `web/` remains the de-facto reference implementation, even though it
-  currently leans on an external API (Aladhan) as a placeholder.
-- `web/` is the only repo deployed to production today — see
-  [`docs/architecture.md`](docs/architecture.md) for the honest state of
-  the other three.
+- `core/` (`athan-core-java`) is the **single source of truth** for
+  calculation logic — published on Maven Central, consumed by `api/`, and
+  mirrored by a TypeScript port (`core-ts/`, also used in `web/` and
+  `mobile/`) that is kept in sync by reference tests. Never reimplement a
+  calculation a second time.
+- `web/` and `api/` are both deployed to production (`openathar.org`,
+  `api.openathar.org`, GitOps via `athar-ops`); `mobile/` is an MVP. See
+  [`docs/architecture.md`](docs/architecture.md) for the honest state of each.
+- The API roadmap is shipped except Qur'an/Adhkar content (needs a
+  licence-clean text source — a product decision). The tree video on the web
+  start page has an unclarified licence: `web/public/beit-athar/CREDITS.md`.
 - Submodule discipline: work inside the submodule folder, then bump the
   pointer here. No extra top-level clone.
 

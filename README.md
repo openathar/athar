@@ -40,19 +40,26 @@ something running in a browser right now.
 The web frontend at [openathar.org](https://openathar.org) isn't a mockup —
 these are real, working sections:
 
+- **The moon, today.** A real 3D moon with today's actual phase opens the
+  page. Further down, "eight faces of one moon" shows when each phase comes
+  back.
+- **A tree that grows as you read.** A tree in the side navigation grows with
+  your scroll, one chapter at a time: how the calculation runs on your device,
+  what's inside, the idea, the calendar, the API, how to take part.
 - **Two lights, one clock.** A 3D earth with a day/night terminator computed
-  from today's actual solar position — not painted. The moon orbits at
-  today's true elongation and shows today's real phase; a dedicated moon
-  view lets you zoom in on it. Click anywhere on earth for prayer times at
-  that spot, or open the dotted world map where day and night are live and
-  every city carries its computed times.
+  from today's solar position — not painted. Click anywhere on earth for
+  prayer times at that spot, computed locally with the same engine the API
+  uses.
 - **The Written Book and the Witnessed Book.** The verse as it was revealed,
   and the world as it is measured — side by side, neither claiming to prove
-  the other. Quran text is sourced and cited, never generated; every click
-  loads a fresh verse/observation pair from the public API.
-- **A calendar that stays quiet.** Today's Hijri date, upcoming Islamic
-  events, and tonight's sky — moon phase, illumination, age — all computed,
-  not fetched.
+  the other. Quran text is sourced and cited, never generated.
+- **A calendar that stays quiet.** Today's Hijri date and the upcoming
+  Islamic dates, computed, not fetched.
+- **The emotion map.** 133 feelings as branches (chest) and roots (belly) of
+  one tree, after the research model of Amin Sabry — tap one to see where it
+  sits and what answers it.
+- **A developer portal** at [`/developers`](https://openathar.org/en/developers)
+  with a live playground for every endpoint.
 
 Fully trilingual — **DE / EN / AR**, with proper RTL for Arabic (logical
 CSS, real webfont typography, no image-based lettering).
@@ -71,12 +78,12 @@ just marketing language.
 |---|---|---|
 | [`athar-web`](https://github.com/openathar/athar-web) | Next.js frontend — everything shown above | **Live, deployed** |
 | [`athan-core-java`](https://github.com/openathar/athan-core-java) | Core SDK (Java 25 / Maven) — prayer times, Qibla, Hijri calculation | **Published to Maven Central** (`org.openathar:athan-core:0.1.0`) |
-| [`api-service`](https://github.com/openathar/api-service) | Spring Boot backend, public REST API (rate-limited, cached) | **V1 live at `api.openathar.org`** — prayer times, Qibla, Hijri |
+| [`api-service`](https://github.com/openathar/api-service) | Spring Boot backend, public REST API (rate-limited, cached) | **Live at `api.openathar.org`** — 15 endpoints: prayer times (day, range, batch, next prayer, iCalendar feed), methods, Qibla, Hijri (+ month grid, reverse), observances, moon, city lookup, API keys |
 | [`athar-mobile-app`](https://github.com/openathar/athar-mobile-app) | iOS/Android app (offline-first) | **MVP built** (Expo) — native store builds pending |
 
 > **Status: Pre-Alpha.** The web frontend is real and running, the
 > calculation engine is published as a library on Maven Central, the
-> public API serves its first endpoints, and the mobile app MVP is built
+> public API serves 15 endpoints, and the mobile app MVP is built
 > (on the same calculation core via
 > `@openathar/athan-core-ts`). See
 > [`docs/architecture.md`](docs/architecture.md) for exactly what's built

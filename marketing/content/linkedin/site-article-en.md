@@ -64,8 +64,10 @@ first proof shipped: privacy you can verify in the network tab.
 
 ## Conclusion
 
-Tonight, if your sky is clear: open the moon view, read its age and its
-illumination. Then step outside and look up.
+Tonight, if your sky is clear: open the page — the moon at the top is
+today's — and read its phase. The numbers are one request away
+(`api.openathar.org/v1/moon`: age, illumination, next new and full moon).
+Then step outside and look up.
 
 If the numbers match, you know why I built this.
 
@@ -74,12 +76,12 @@ If the numbers match, you know why I built this.
 ## Posting notes (not part of the post)
 
 - **Link in the first comment**, not the body — in-body links reduce feed reach.
-- Pinned first comment (draft): `openathar.org — and for developers: api.openathar.org (REST, rate-limited, no key needed yet).`
+- Pinned first comment (draft): `openathar.org — and for developers: api.openathar.org (REST, 15 endpoints, free API key without sign-up).`
 - **Timing:** Tue–Thu, 08:00–10:00 CET or 14:00–16:00 CET (US overlap). Not Friday afternoon.
 - **Never edit after 10 minutes** (algorithm reset). Answer the first 5 comments within 2 hours.
 - Hashtags: 3, consistent with the launch post: `#openathar #OpenSource #SadaqahJariyah`
-- Optional micro-task before posting: add `id="cosmos"` to the observatory
-  section, then pin `openathar.org/#cosmos` — the link scrolls straight to
-  the moon, which is the post's deed. (Anchors today: only `#main`, `#athar`.)
+- Optional: pin `openathar.org` itself — the moon is the first thing on the
+  page now, which is the post's deed. (Check that the anchors you want, e.g.
+  `#cosmos` for the calendar chapter, exist before linking to them.)
 
 #openathar #OpenSource #SadaqahJariyah

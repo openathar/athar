@@ -4,9 +4,9 @@
 
 | Repo | State | What's actually there |
 |---|---|---|
-| **`athar-web`** | **Actively developed, deployed** | Next.js frontend, live at `openathar.org` (GitOps via `athar-ops`): Hero (brand logo, cursor-reactive), tabbed cosmos section (3D Earth with computed day/night terminator + moon at true orbital elongation, dedicated moon-phase view, dotted world map with live prayer times computed locally via a TypeScript port of `athan-core-java` — no external prayer-time API), "Written & Witnessed Book" section (Quran verse + AI-assisted observation, editorially reviewed, loads fresh pairs from `/api/reflections` on click), Islamic calendar (upcoming dates), DE/EN/AR with RTL. |
+| **`athar-web`** | **Actively developed, deployed** | Next.js 15 frontend, live at `openathar.org` (GitOps via `athar-ops`). The start page is "the tree under the moon": a real 3D moon (today's phase) in the hero, then six chapters — calculation, features, idea, calendar, API, take part — while a tree in the side navigation grows as you scroll. Inside: the tabbed cosmos section (3D Earth with computed day/night terminator, clickable globe with live prayer times from a TypeScript port of `athan-core-java` — no external prayer-time API), "Eight faces of one moon", the "Written & Witnessed Book" (Quran verse + AI-assisted, editorially reviewed observation, fresh pairs from `/api/reflections`), upcoming Islamic dates, and an interactive emotion map (133 feelings as branches and roots, after the research model of Amin Sabry; names handwritten per language). The developer portal (`/developers`, linked in the header) shares the same dark/gold look. DE/EN/AR with RTL. The tree is a template video whose licence is **not yet clarified** (`web/public/beit-athar/CREDITS.md`). |
 | **`athan-core-java`** | **Published** | Java 25 / Maven library on Maven Central (`org.openathar:athan-core:0.1.0`): prayer times (PrayTimes.org v3.2 port), Qibla bearing, Hijri conversion (Umm al-Qura) — 38 reference tests. The single source of truth for calculation logic. |
-| **`api-service`** | **V1 live in production** | Spring Boot 4.1.1 / Java 25, hexagonal, wraps `athan-core-java` (from Maven Central): `/v1/prayer-times`, `/v1/qibla`, `/v1/hijri` at `api.openathar.org`. Redis rate limiting (fixed window per client IP, fail-open), `Cache-Control: public, max-age=31536000, immutable`. 18 tests incl. ArchUnit. |
+| **`api-service`** | **V1 live in production** | Spring Boot 4.1.1 / Java 25, hexagonal, wraps `athan-core-java` (from Maven Central). 15 endpoints at `api.openathar.org`: prayer times (day, date range, batch, current/next prayer, iCalendar feed), `/v1/methods`, `/v1/qibla`, `/v1/hijri` and `/v1/calendar/{hijri,gregorian}`, `/v1/events`, `/v1/moon`, `/v1/places` (bundled GeoNames extract, CC BY 4.0), self-serve API keys. Redis rate limiting (fixed window per client IP or key, fail-open), `Cache-Control: immutable` on deterministic answers. 61 tests incl. ArchUnit and USNO moon reference times. |
 | **`athar-mobile-app`** | **MVP in progress** | React Native / Expo (SDK 57, expo-router): prayer screen with day-phase hero, real moon phase + star field from the web design language, Qibla compass (magnetometer), per-prayer adhan alarms (local notifications, never push), city-search location picker. Computes locally via `@openathar/athan-core-ts`. Next: on-device verification, adhan audio, store submission. |
 
 **Consequence for the roadmap:** the calculation logic is no longer
@@ -42,8 +42,9 @@ shared package.
 - **Modular monolith** to start (hexagonal, one module per bounded
   context), microservices only once scaling pressure is real.
 - **Public API**: results for (lat, lon, date, method) are constant forever
-  → aggressive HTTP caching (`Cache-Control: immutable`; the one exception
-  is Hijri without a date = "today", cached for 5 minutes) + a CDN edge in
+  → aggressive HTTP caching (`Cache-Control: immutable`; exceptions are the
+  answers that mean "now": Hijri/events/ICS without a date are cached for
+  5 minutes to 1 hour, `next` and `moon` without `at` not at all) + a CDN edge in
   front. Cloudflare proxies `api.openathar.org` today but does not cache the
   JSON (`cf-cache-status: DYNAMIC`) — a cache rule would make the immutable
   headers pay off at the edge. Rate limiting via Redis fixed window per
@@ -115,7 +116,12 @@ order:
 2. **Content distribution** (Quran text/audio/fonts, Adhkar) via object
    storage + CDN, once content governance (see below) is settled.
 
-Shipped since the last pass: a custom developer portal at
+Shipped since the last pass: the API roadmap — date ranges, current/next
+prayer, method catalogue, batch, iCalendar feed, moon, observances, Hijri
+month grid and reverse conversion, city lookup — all documented in the portal
+and the `api-service` README; only Qur'an/Adhkar content remains (blocked on a
+licence-clean text source). The start page was redesigned (see the web row
+above). Before that: a custom developer portal at
 `openathar.org/[locale]/developers` (explicitly not Swagger UI). The
 reference itself is English-only; only header/footer/title follow en/de/ar
 and RTL, and all three URLs canonicalize to `/en/developers`. It is
@@ -142,7 +148,10 @@ assumed non-null strings — and key labels are capped at 64 characters.
    infrastructure (Sadaqah/Waqf/sponsorship), possibly a non-profit
    association as the legal entity behind SLA-capable public API hosting.
 3. **Content licensing**: usage rights for Mushaf fonts, recitations,
-   translations need to be cleared before integration.
+   translations need to be cleared before integration. Also open: the
+   licence of the template media on the start page (tree video, a few
+   images — see `web/public/beit-athar/CREDITS.md`); and attribution for the
+   GeoNames data behind `/v1/places` (CC BY 4.0, already in every response).
 4. **Design decision pending**: the `design/b-noor` branch (dark gold/green
    theme, different header, world map with city picker) is a parallel
    design draft to the current `main` design — not yet decided whether or
