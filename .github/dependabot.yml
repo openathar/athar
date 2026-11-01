@@ -1,0 +1,42 @@
+version: 2
+updates:
+  - package-ecosystem: docker
+    directory: "/api"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: docker
+    directory: "/web"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: gradle
+    directory: "/mobile/android"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: gradle
+    directory: "/mobile/android/app"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: maven
+    directory: "/api"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: maven
+    directory: "/core"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: npm
+    directory: "/core-ts"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: npm
+    directory: "/mobile"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: npm
+    directory: "/web"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5

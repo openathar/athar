@@ -1,0 +1,35 @@
+name: trivy
+on:
+  push: { branches: [main, master] }
+  pull_request:
+  schedule: [{ cron: '17 5 * * 1' }]   # wöchentlich Mo: neue CVEs in unveränderten Repos
+  workflow_dispatch:
+permissions: { contents: read, security-events: write }
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencies + Secrets + IaC (Gate)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scanners: vuln,secret,misconfig
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
+          skip-dirs: node_modules,.next,dist
+      - name: SARIF (Security-Tab)
+        if: always()
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scanners: vuln,secret
+          format: sarif
+          output: trivy.sarif
+          ignore-unfixed: true
+          skip-dirs: node_modules,.next,dist
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true   # private Repos ohne GHAS
+        with: { sarif_file: trivy.sarif }
