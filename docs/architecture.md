@@ -7,7 +7,7 @@
 | **`athar-web`** | **Actively developed, deployed** | Next.js 15 frontend, live at `openathar.org` (GitOps via `athar-ops`). The start page is "the tree under the moon": a real 3D moon (today's phase) in the hero, then six chapters — calculation, features, idea, calendar, API, take part — while a tree in the side navigation grows as you scroll. Inside: the tabbed cosmos section (3D Earth with computed day/night terminator, clickable globe with live prayer times from a TypeScript port of `athan-core-java` — no external prayer-time API), "Eight faces of one moon", the "Written & Witnessed Book" (Quran verse + AI-assisted, editorially reviewed observation, fresh pairs from `/api/reflections`), upcoming Islamic dates, and an interactive emotion map (133 feelings as branches and roots, after the research model of Amin Sabry; names handwritten per language). The developer portal (`/developers`, linked in the header) shares the same dark/gold look. DE/EN/AR with RTL. The tree is a template video whose licence is **not yet clarified** (`web/public/beit-athar/CREDITS.md`). |
 | **`athan-core-java`** | **Published** | Java 25 / Maven library on Maven Central (`org.openathar:athan-core:0.1.0`): prayer times (PrayTimes.org v3.2 port), Qibla bearing, Hijri conversion (Umm al-Qura) — 38 reference tests. The single source of truth for calculation logic. |
 | **`api-service`** | **V1 live in production** | Spring Boot 4.1.1 / Java 25, hexagonal, wraps `athan-core-java` (from Maven Central). 15 endpoints at `api.openathar.org`: prayer times (day, date range, batch, current/next prayer, iCalendar feed), `/v1/methods`, `/v1/qibla`, `/v1/hijri` and `/v1/calendar/{hijri,gregorian}`, `/v1/events`, `/v1/moon`, `/v1/places` (bundled GeoNames extract, CC BY 4.0), self-serve API keys. Redis rate limiting (fixed window per client IP or key, fail-open), `Cache-Control: immutable` on deterministic answers. 61 tests incl. ArchUnit and USNO moon reference times. |
-| **`athar-mobile-app`** | **MVP in progress** | React Native / Expo (SDK 57, expo-router): prayer screen with day-phase hero, real moon phase + star field from the web design language, Qibla compass (magnetometer), per-prayer adhan alarms (local notifications, never push), city-search location picker. Computes locally via `@openathar/athan-core-ts`. Next: on-device verification, adhan audio, store submission. |
+| **`athar-mobile-app`** | **MVP in progress** | React Native / Expo (SDK 58, expo-router): prayer screen with day-phase hero, real moon phase + star field from the web design language, Qibla compass (magnetometer), per-prayer adhan alarms (local notifications, never push), city-search location picker. Computes locally via `@openathar/athan-core-ts`. Next: on-device verification, adhan audio, store submission. |
 
 **Consequence for the roadmap:** the calculation logic is no longer
 duplicated or provisional — `athan-core-java` exists, is published, and is
@@ -69,7 +69,7 @@ shared package.
   timer style (fixed end date) — no periodic push needed.
 - Smart-speaker integration (Alexa/Google Home) is decoupled, only calls the
   Public API — no influence on mobile architecture.
-- Framework decision made: **React Native / Expo** (SDK 57). The MVP screens
+- Framework decision made: **React Native / Expo** (SDK 58). The MVP screens
   exist; not done yet: on-device verification of location + notifications,
   adhan audio, store submission.
 
@@ -90,10 +90,12 @@ shared package.
   (ArgoCD app `athar` in `athar-ops`, pinned image SHA, Traefik +
   Cloudflare tunnel). Redis runs in the `athar` namespace for rate
   limiting (fail-open when unreachable) **and** for self-serve API keys
-  (`POST /v1/api-keys`, no TTL — see `api-service/README.md` for the
-  known Redis-vs-Postgres trade-off). PostgreSQL via the CNPG operator
-  will come with user-sync data (Khatma/Tasbeeh) — API keys are the first
-  candidate to migrate once it lands.
+  (`POST /v1/api-keys`, no TTL). Known gap: Redis has no persistence
+  (`--save "" --appendonly no`), so every restart silently drops all issued
+  keys (clients fall back to the IP limit). Decision (2026-11-15): add AOF
+  + a 1 Gi `local-path` PVC now, migrate keys to PostgreSQL once the CNPG
+  operator lands in the `athar` namespace (together with user-sync data:
+  Khatma/Tasbeeh).
 - Static content (Quran text/audio/fonts) via object storage + CDN, **not**
   through app pods — also only relevant once content distribution actually
   gets built.
@@ -111,7 +113,7 @@ wrap it in an API) is **done** — the calculation engine is published, the
 web computes locally, and the API serves V1 in production. What remains, in
 order:
 
-1. **`athar-mobile-app`**: MVP in progress (Expo SDK 57) — on-device
+1. **`athar-mobile-app`**: MVP in progress (Expo SDK 58) — on-device
    verification, adhan audio, store submission.
 2. **Content distribution** (Quran text/audio/fonts, Adhkar) via object
    storage + CDN, once content governance (see below) is settled.
@@ -152,7 +154,8 @@ assumed non-null strings — and key labels are capped at 64 characters.
    licence of the template media on the start page (tree video, a few
    images — see `web/public/beit-athar/CREDITS.md`); and attribution for the
    GeoNames data behind `/v1/places` (CC BY 4.0, already in every response).
-4. **Design decision pending**: the `design/b-noor` branch (dark gold/green
-   theme, different header, world map with city picker) is a parallel
-   design draft to the current `main` design — not yet decided whether or
-   how the two get merged.
+4. ~~Design decision pending~~ **resolved (2026-11-15)**: the
+   `design/b-noor` branch was a stale draft (five commits behind `main`,
+   without the security fix and the current features). Discarded — the
+   branch is deleted; `main` (tree under the moon, 3D earth, dark gold) is
+   the design.
