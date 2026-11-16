@@ -49,3 +49,18 @@ schreibt ausschließlich Entwürfe.
 - Die Verse bleiben aus quran.com (exakt), nie vom Modell erzeugt.
 - Menschliche Freigabe bleibt Pflicht: ein validierter `draft` wird erst nach
   menschlicher Sichtung `live`.
+
+## Umsetzung (Stand 2026-11-16)
+
+- **Schema** liegt versioniert in `db/reflections.sql` (vorher nur in der DB).
+  Neu: `CHECK`-Constraints — nur `draft | live | rejected`, und jeder Status
+  außer `draft` verlangt `reviewed_at` + `reviewed_by`. Die Datenbank erzwingt
+  damit, dass niemand ohne Namen freigeben kann.
+- **Freigabe-Werkzeug:** `scripts/reflections-review.sh list | promote <id> | reject <id> | live`.
+  Der Prüfername wird als psql-Variable übergeben (keine SQL-Injection über den
+  Namen; getestet). `promote`/`reject` wirken nur auf `draft`.
+- **Besucher** sehen ausschließlich `live`; ist der Pool leer oder die DB nicht
+  erreichbar, greift der statische Seed `web/data/reflections.json`.
+- **Bekannte Grenze:** Der initiale, serverseitig gerenderte Eintrag der
+  Startseite stammt noch aus dem Seed; der Live-Pool speist `/api/reflections`
+  (also „Another sign").
