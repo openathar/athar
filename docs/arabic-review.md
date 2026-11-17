@@ -115,3 +115,38 @@ Alle arabischen Texte, die ohne muttersprachliche Prüfung geschrieben wurden. Q
 يُبنى «أثر» علنًا برخصة MIT. يشترك التطبيق في محرّك الحساب مع الموقع وواجهة برمجة عامة — انظر openathar.org.
 
 ملاحظة: كُتبت معاني الأدعية لأجل «أثر» وما زالت قيد المراجعة. المواقيت حسابات؛ أما بداية رمضان والعيد فاتّبع فيها جهة رؤية الهلال في بلدك.
+
+
+## 5. Neu seit dem 17.11. abend — NOCH ZU PRÜFEN (nicht freigegeben)
+
+### 5a. Neue App-Strings (`mobile/src/lib/i18n.ts`, Block `ar`)
+
+| Schlüssel | Arabisch | Bedeutung |
+|---|---|---|
+| `namesTitle` | أسماء الألوهية | Überschrift der 99-Namen-Ansicht (Titel ist aus dem PDF, nicht generiert) |
+| `namesSource` | بطاقات alhosna.net التسع والتسعون، لأمين صبري | Quellenzeile (von mir geschrieben, zu prüfen) |
+| `namesAll` | الأسماء التسعة والتسعون | Link „Alle 99 Namen" |
+| `namesToday` | اليوم | „Heute" |
+| `namesDraft` | الترجمة مسودة بانتظار المراجعة. | Hinweis „Übersetzung ist Entwurf" |
+| `namesPrev` | الاسم السابق | „Voriger Name" |
+| `namesNext` | الاسم التالي | „Nächster Name" |
+| `dayShort` | اليوم | „Tag" |
+| `monthShort` | الشهر | „Monat" |
+| `yearShort` | السنة | „Jahr" |
+
+Wiederverwendet und bereits freigegeben (Abschnitt 1): `nameOfDay` اسم اليوم, `nameOfN` من ٩٩,
+`yourMoon` قمرك, `yourMoonHint` اختر تاريخًا — … , `hijriDate` التاريخ الهجري.
+
+### 5b. 99 Namen (`mobile/src/data/divine-names.ts`)
+
+- **Arabisch + Reihenfolge:** wörtlich aus dem PDF `alhosna-divine-2026-11-11.pdf`
+  (alhosna.net, Amin Sabry) — kuratiert, NICHT generiert. Keine Sprachprüfung nötig.
+- **`en` / `de` Übersetzungen:** Entwürfe von mir (`TRANSLATIONS_APPROVED = false`), nicht
+  redaktionell geprüft. `pl`/`tr` zeigen Englisch, `ar` keine Übersetzung (Text ist schon arabisch).
+
+### 5c. Weiterhin ungeprüft (unverändert)
+
+- Die 18 arabischen Beobachtungstexte des Seeds (`web/data/reflections.json`,
+  `arabicApproved: false`).
+- Der restliche `ar`-Block von `mobile/src/lib/i18n.ts`, ausser den Schlüsseln aus Abschnitt 3
+  und 5a.
