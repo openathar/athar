@@ -1,7 +1,7 @@
 # Athar — LinkedIn-Posts zu den Blogartikeln (Nov. 2026)
 
-**Stand:** Entwurf v1 (2026-11-17), wartet auf Ahmads Freigabe.
-**Kanal:** Ahmads Profil (wie die bisherigen Athar-Posts), Link zum Artikel im ersten Kommentar.
+**Stand:** freigegeben von Ahmad am 2026-11-17; alle 3 Posts am 17.11. auf Ahmads Profil geplant (08:00 Berlin). Blog live auf openathar.org seit 17.11.
+**Kanal:** Ahmads Profil (wie die bisherigen Athar-Posts). Link steht im Post selbst, weil geplante Posts keinen ersten Kommentar haben können.
 **Termine:** Fr 20.11. (Artikel 1) · Mo 23.11. (Artikel 2, AR) · Do 26.11. (Artikel 3), jeweils 08:00 Berlin.
 Die Artikel erscheinen auf openathar.org ab 17./19./21.11. (Datumssteuerung in `web/lib/blog.ts`).
 **Regeln:** nur Aussagen aus den Artikeln (im Code geprüft), keine Nutzerzahlen, max. 3 Hashtags.
@@ -21,7 +21,7 @@ No cookies, no analytics, no ads. Built as a Sadaqah Jariyah.
 
 #OpenSource #SadaqahJariyah #Privacy
 ```
-**Erster Kommentar:** `https://openathar.org/en/blog/prayer-times-on-your-device`
+**Link (im Post):** `https://openathar.org/en/blog/prayer-times-on-your-device`
 
 ---
 
@@ -38,7 +38,7 @@ No cookies, no analytics, no ads. Built as a Sadaqah Jariyah.
 
 #أثر #OpenSource #SadaqahJariyah
 ```
-**Erster Kommentar:** `https://openathar.org/ar/blog/one-core-two-languages`
+**Link (im Post):** `https://openathar.org/ar/blog/one-core-two-languages`
 
 ---
 
@@ -55,4 +55,4 @@ What is missing: Qur'an and adhkar content. We want a clearly licensed text sour
 
 #OpenSource #API #SadaqahJariyah
 ```
-**Erster Kommentar:** `https://openathar.org/en/blog/a-free-public-api`
+**Link (im Post):** `https://openathar.org/en/blog/a-free-public-api`
