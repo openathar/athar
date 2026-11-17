@@ -78,6 +78,7 @@ just marketing language.
 |---|---|---|
 | [`athar-web`](https://github.com/openathar/athar-web) | Next.js frontend — everything shown above | **Live, deployed** |
 | [`athan-core-java`](https://github.com/openathar/athan-core-java) | Core SDK (Java 25 / Maven) — prayer times, Qibla, Hijri calculation | **Published to Maven Central** (`org.openathar:athan-core:0.1.0`) |
+| [`athan-core-ts`](https://github.com/openathar/athan-core-ts) | TypeScript port of the core, used by web and mobile | **Published on npm** (`@openathar/athan-core-ts@0.1.0`) |
 | [`api-service`](https://github.com/openathar/api-service) | Spring Boot backend, public REST API (rate-limited, cached) | **Live at `api.openathar.org`** — 15 endpoints: prayer times (day, range, batch, next prayer, iCalendar feed), methods, Qibla, Hijri (+ month grid, reverse), observances, moon, city lookup, API keys |
 | [`athar-mobile-app`](https://github.com/openathar/athar-mobile-app) | iOS/Android app (offline-first) | **MVP built** (Expo) — native store builds pending |
 

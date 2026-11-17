@@ -11,9 +11,9 @@
 
 **Consequence for the roadmap:** the calculation logic is no longer
 duplicated or provisional — `athan-core-java` exists, is published, and is
-mirrored in the web frontend by a TypeScript port kept in sync with
-reference tests. The remaining work is wiring: the API already consumes the
-library, the mobile app embeds it (`@openathar/athan-core-ts`).
+mirrored by one TypeScript port, `@openathar/athan-core-ts` (published on
+npm), which both the web frontend and the mobile app consume as a package.
+The API consumes the Java library from Maven Central.
 On the site's roadmap this reads: *Web tools — Live*, *Calculation core —
 Live*, *Public API — V1*, *Mobile app — in progress*.
 
@@ -30,12 +30,12 @@ Live*, *Public API — V1*, *Mobile app — in progress*.
 
 **Critical decision:** `athan-core-java` is the **single source of truth**
 for calculation logic — identical client-side (offline) and server-side
-(Public API), never reimplemented twice. The web frontend mirrors it via a
-TypeScript port (`lib/athan-core.ts`) kept in sync by reference tests
-against the Java values; the API consumes it directly from Maven Central.
-The mobile app shares the web's port as `@openathar/athan-core-ts`
-(same calculation core for web + app); moon-phase math lives in the same
-shared package.
+(Public API), never reimplemented twice. The API consumes it directly from
+Maven Central. Web and mobile both use the TypeScript port
+`@openathar/athan-core-ts` from npm (no local copies); moon-phase math lives
+in the same package. Two guards keep the port honest: reference tests
+against the Java values, and a weekly CI drift check in `athan-core-ts`
+that compares the port with the live `api.openathar.org`.
 
 ## System architecture & API design
 
@@ -90,12 +90,12 @@ shared package.
   (ArgoCD app `athar` in `athar-ops`, pinned image SHA, Traefik +
   Cloudflare tunnel). Redis runs in the `athar` namespace for rate
   limiting (fail-open when unreachable) **and** for self-serve API keys
-  (`POST /v1/api-keys`, no TTL). Known gap: Redis has no persistence
-  (`--save "" --appendonly no`), so every restart silently drops all issued
-  keys (clients fall back to the IP limit). Decision (2026-11-15): add AOF
-  + a 1 Gi `local-path` PVC now, migrate keys to PostgreSQL once the CNPG
-  operator lands in the `athar` namespace (together with user-sync data:
-  Khatma/Tasbeeh).
+  (`POST /v1/api-keys`, no TTL). Redis runs with AOF persistence
+  (`appendfsync everysec`) on a 1 Gi `local-path` PVC, so keys survive a
+  pod restart (losing at most ~1 s of writes) but not the loss of that
+  volume or its node. Next step (decided 2026-11-15): move keys to
+  PostgreSQL once the CNPG operator lands in the `athar` namespace,
+  together with user-sync data (Khatma/Tasbeeh).
 - Static content (Quran text/audio/fonts) via object storage + CDN, **not**
   through app pods — also only relevant once content distribution actually
   gets built.
