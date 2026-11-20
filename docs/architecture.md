@@ -7,7 +7,7 @@
 | **`athar-web`** | **Actively developed, deployed** | Next.js 15 frontend, live at `openathar.org` (GitOps via `athar-ops`). The start page is "the tree under the moon": a real 3D moon (today's phase) in the hero, then six chapters — calculation, features, idea, calendar, API, take part — while a tree in the side navigation grows as you scroll. Inside: the tabbed cosmos section (3D Earth with computed day/night terminator, clickable globe with live prayer times from a TypeScript port of `athan-core-java` — no external prayer-time API), "Eight faces of one moon", the "Written & Witnessed Book" (Quran verse + AI-assisted, editorially reviewed observation, fresh pairs from `/api/reflections`), upcoming Islamic dates, and an interactive emotion map (133 feelings as branches and roots, after the research model of Amin Sabry; names handwritten per language). The developer portal (`/developers`, linked in the header) shares the same dark/gold look. DE/EN/AR with RTL. The tree is a template video whose licence is **not yet clarified** (`web/public/beit-athar/CREDITS.md`). |
 | **`athan-core-java`** | **Published** | Java 25 / Maven library on Maven Central (`org.openathar:athan-core:0.1.0`): prayer times (PrayTimes.org v3.2 port), Qibla bearing, Hijri conversion (Umm al-Qura) — 38 reference tests. The single source of truth for calculation logic. |
 | **`api-service`** | **V1 live in production** | Spring Boot 4.1.1 / Java 25, hexagonal, wraps `athan-core-java` (from Maven Central). 15 endpoints at `api.openathar.org`: prayer times (day, date range, batch, current/next prayer, iCalendar feed), `/v1/methods`, `/v1/qibla`, `/v1/hijri` and `/v1/calendar/{hijri,gregorian}`, `/v1/events`, `/v1/moon`, `/v1/places` (bundled GeoNames extract, CC BY 4.0), self-serve API keys. Redis rate limiting (fixed window per client IP or key, fail-open), `Cache-Control: immutable` on deterministic answers. 61 tests incl. ArchUnit and USNO moon reference times. |
-| **`athar-mobile-app`** | **MVP in progress** | React Native / Expo (SDK 58, expo-router): prayer screen with day-phase hero, real moon phase + star field from the web design language, Qibla compass (magnetometer), per-prayer adhan alarms (local notifications, never push), city-search location picker. Computes locally via `@openathar/athan-core-ts`. Next: on-device verification, adhan audio, store submission. |
+| **`athar-mobile-app`** | **1.0 ready for store (2026-11-20)** | React Native / Expo (SDK 58, expo-router native tabs), the website's design and story: first-open welcome ("A trace that keeps going.", permissions explained before any prompt), prayer screen with the real moon and numbered chapters, Qibla compass, Sky (moon, Hijri month, observances), Tree (tasbih counter that grows a code-drawn tree per seed + the website's feelings tree), per-prayer adhan alarms (local notifications, never push), five languages with RTL. Computes locally via `@openathar/athan-core-ts`; 25 unit tests (`npm test`). Plan: `mobile/docs/release-1.0.md`. Open: device test, iOS submission (weekend), Android after Google's 14-day closed test. |
 
 **Consequence for the roadmap:** the calculation logic is no longer
 duplicated or provisional — `athan-core-java` exists, is published, and is
@@ -113,8 +113,9 @@ wrap it in an API) is **done** — the calculation engine is published, the
 web computes locally, and the API serves V1 in production. What remains, in
 order:
 
-1. **`athar-mobile-app`**: MVP in progress (Expo SDK 58) — on-device
-   verification, adhan audio, store submission.
+1. **`athar-mobile-app`**: 1.0 is built and announced (blog, 2026-11-20) —
+   on-device verification, iOS submission, Android closed test (12 testers,
+   14 days); a custom adhan sound comes after launch.
 2. **Content distribution** (Quran text/audio/fonts, Adhkar) via object
    storage + CDN, once content governance (see below) is settled.
 
