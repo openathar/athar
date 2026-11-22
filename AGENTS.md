@@ -25,6 +25,11 @@ DevOps, current status per repo, open critical questions):
 
 ## Things to know
 
+- **The mobile app collects no data — a promise that must never be broken** (App Store label "Data
+  Not Collected", 2026-11-22). Only the city search reaches `api.openathar.org`, with the typed text
+  alone; the API and the cluster must not store it (no access log for that router, no request
+  logging, short-lived rate-limit keys only). Details and the guard test: `mobile/AGENTS.md` →
+  Critical points. Any feature that would send or keep user data needs Ahmad's decision first.
 - `core/` (`athan-core-java`) is the **single source of truth** for
   calculation logic — published on Maven Central, consumed by `api/`, and
   mirrored by a TypeScript port (`core-ts/`, also used in `web/` and
